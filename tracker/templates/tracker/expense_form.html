@@ -1,13 +1,8 @@
-{% extends 'tracker/base.html' %}
-
-{% block content %}
-<h2>{{ title }}</h2>
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-</form>
-
-<p><a href="{% url 'expense_list' %}">Back to Expenses</a></p>
-{% endblock %}
+<h1>My Expenses</h1>
+<ul>
+  {% for expense in expenses %}
+    <li>{{ expense.date }} - {{ expense.category.name if expense.category else "No category" }}: {{ expense.amount }} - {{ expense.note }}</li>
+  {% empty %}
+    <li>No expenses yet.</li>
+  {% endfor %}
+</ul>

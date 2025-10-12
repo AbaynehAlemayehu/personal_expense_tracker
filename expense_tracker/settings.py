@@ -130,3 +130,7 @@ INSTALLED_APPS = [
     'rest_framework',   # for API
     'tracker',          # our app
 ]
+# expense_tracker/settings.py
+
+LOGIN_URL = 'login'  # This should match the name of your login path
+LOGIN_REDIRECT_URL = '/'  # After login, redirect to homepage
