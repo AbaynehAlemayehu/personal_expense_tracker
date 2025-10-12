@@ -38,3 +38,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ExpenseViewSet(viewsets.ModelViewSet):
     queryset = Expense.objects.all()
     serializer_class = ExpenseSerializer
+from django.shortcuts import render
+from .models import Expense
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def expense_list(request):
+    expenses = Expense.objects.filter(user=request.user).order_by('-date')
+    return render(request, 'tracker/expense_list.html', {'expenses': expenses})
