@@ -1,11 +1,12 @@
-from django import forms
+# tracker/forms.py
+from django import forms  # ✅ Corrected
+
 from .models import Expense
 
 class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expense
-        fields = ['category', 'amount', 'date', 'note']
+        fields = ['category', 'amount', 'note']  # remove 'date' if auto_now_add=True
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date'}),
             'note': forms.Textarea(attrs={'rows': 2}),
         }
