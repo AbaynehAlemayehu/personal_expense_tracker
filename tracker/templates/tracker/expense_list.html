@@ -48,3 +48,21 @@
     </tr>
     {% endfor %}
 </table>
+<a href="{% url 'expense_create' %}">Add New Expense</a>
+{% for expense in expenses %}
+<tr>
+    <td>{{ expense.date }}</td>
+    <td>{{ expense.category }}</td>
+    <td>{{ expense.amount }}</td>
+    <td>{{ expense.note }}</td>
+    <td>
+        <a href="{% url 'expense_update' expense.pk %}">Edit</a> |
+        <a href="{% url 'expense_delete' expense.pk %}">Delete</a>
+    </td>
+</tr>
+{% endfor %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+</form>
