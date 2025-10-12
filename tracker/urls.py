@@ -30,3 +30,11 @@ from . import views
 urlpatterns = [
     path('', views.expense_list, name='expense_list'),
 ]
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.expense_list, name='expense_list'),
+    path('expense/new/', views.expense_create, name='expense_create'),
+    path('expense/<int:pk>/edit/', views.expense_update, name='expense_update'),
+]

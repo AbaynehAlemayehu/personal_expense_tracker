@@ -24,3 +24,27 @@
     {% endfor %}
 </table>
 {% endblock %}
+<a href="{% url 'expense_create' %}">+ Add Expense</a>
+
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Date</th>
+        <th>Category</th>
+        <th>Amount</th>
+        <th>Note</th>
+        <th>Action</th>
+    </tr>
+    {% for expense in expenses %}
+    <tr>
+        <td>{{ expense.date }}</td>
+        <td>{{ expense.category.name }}</td>
+        <td>{{ expense.amount }}</td>
+        <td>{{ expense.note }}</td>
+        <td><a href="{% url 'expense_update' expense.pk %}">Edit</a></td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5">No expenses found.</td>
+    </tr>
+    {% endfor %}
+</table>
