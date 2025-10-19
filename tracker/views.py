@@ -1,13 +1,22 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from .models import Expense
 from .forms import ExpenseForm
-from django.contrib.auth.decorators import login_required
 
+
+def home(request):
+    return HttpResponse("Welcome to Personal Expense Tracker!")
+
+
+# -------------------- Expense List --------------------
 @login_required
 def expense_list(request):
     expenses = Expense.objects.filter(user=request.user).order_by('-date')
     return render(request, 'tracker/expense_list.html', {'expenses': expenses})
 
+
+# -------------------- Create Expense --------------------
 @login_required
 def expense_create(request):
     if request.method == 'POST':
@@ -19,8 +28,10 @@ def expense_create(request):
             return redirect('expense_list')
     else:
         form = ExpenseForm()
-    return render(request, 'tracker/expense_form.html', {'form': form, 'title': 'Add Expense'})
+    return render(request, 'tracker/expense_form.html', {'form': form})
 
+
+# -------------------- Update Expense --------------------
 @login_required
 def expense_update(request, pk):
     expense = get_object_or_404(Expense, pk=pk, user=request.user)
@@ -31,8 +42,10 @@ def expense_update(request, pk):
             return redirect('expense_list')
     else:
         form = ExpenseForm(instance=expense)
-    return render(request, 'tracker/expense_form.html', {'form': form, 'title': 'Edit Expense'})
+    return render(request, 'tracker/expense_form.html', {'form': form})
 
+
+# -------------------- Delete Expense --------------------
 @login_required
 def expense_delete(request, pk):
     expense = get_object_or_404(Expense, pk=pk, user=request.user)
@@ -40,7 +53,3 @@ def expense_delete(request, pk):
         expense.delete()
         return redirect('expense_list')
     return render(request, 'tracker/expense_confirm_delete.html', {'expense': expense})
-from django.http import HttpResponse
-
-def home(request):
-    return HttpResponse("Welcome to Personal Expense Tracker!")

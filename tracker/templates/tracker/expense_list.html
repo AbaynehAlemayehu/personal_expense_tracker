@@ -1,68 +1,50 @@
-{% extends 'tracker/base.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Personal Expense Tracker</title>
+</head>
+<body>
+    <h1>Personal Expense Tracker</h1>
 
-{% block content %}
-<h2>Your Expenses</h2>
+    <p>Logged in as {{ user.username }} | <a href="{% url 'logout' %}">Logout</a></p>
+    <hr>
 
-<table border="1" cellpadding="5">
-    <tr>
-        <th>Date</th>
-        <th>Category</th>
-        <th>Amount</th>
-        <th>Note</th>
-    </tr>
-    {% for expense in expenses %}
-    <tr>
-        <td>{{ expense.date }}</td>
-        <td>{{ expense.category.name }}</td>
-        <td>{{ expense.amount }}</td>
-        <td>{{ expense.note }}</td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="4">No expenses found.</td>
-    </tr>
-    {% endfor %}
-</table>
-{% endblock %}
-<a href="{% url 'expense_create' %}">+ Add Expense</a>
+    <h2>Your Expenses</h2>
 
-<table border="1" cellpadding="5">
-    <tr>
-        <th>Date</th>
-        <th>Category</th>
-        <th>Amount</th>
-        <th>Note</th>
-        <th>Action</th>
-    </tr>
-    {% for expense in expenses %}
-    <tr>
-        <td>{{ expense.date }}</td>
-        <td>{{ expense.category.name }}</td>
-        <td>{{ expense.amount }}</td>
-        <td>{{ expense.note }}</td>
-        <td><a href="{% url 'expense_update' expense.pk %}">Edit</a></td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="5">No expenses found.</td>
-    </tr>
-    {% endfor %}
-</table>
-<a href="{% url 'expense_create' %}">Add New Expense</a>
-{% for expense in expenses %}
-<tr>
-    <td>{{ expense.date }}</td>
-    <td>{{ expense.category }}</td>
-    <td>{{ expense.amount }}</td>
-    <td>{{ expense.note }}</td>
-    <td>
-        <a href="{% url 'expense_update' expense.pk %}">Edit</a> |
-        <a href="{% url 'expense_delete' expense.pk %}">Delete</a>
-    </td>
-</tr>
-{% endfor %}
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-</form>
+    <a href="{% url 'expense_create' %}">➕ Add New Expense</a><br><br>
+
+    <table border="1" cellspacing="0" cellpadding="6">
+        <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Note</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for expense in expenses %}
+        <tr>
+            <td>{{ expense.date|date:"M. d, Y" }}</td>
+
+            <!-- FIXED category display -->
+            <td>
+                {% if expense.category %}
+                    {{ expense.category.name }}
+                {% else %}
+                    No category
+                {% endif %}
+            </td>
+
+            <td>{{ expense.amount }}</td>
+            <td>{{ expense.note }}</td>
+            <td>
+                <a href="{% url 'expense_update' expense.pk %}">✏️ Edit</a> |
+                <a href="{% url 'expense_delete' expense.pk %}">🗑️ Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No expenses yet.</td></tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

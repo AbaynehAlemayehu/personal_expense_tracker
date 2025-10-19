@@ -1,4 +1,7 @@
 from django.urls import path
+from . import views   
+
+from django.urls import path
 from .views import expense_list, expense_create, expense_update, expense_delete
 
 urlpatterns = [
@@ -8,3 +11,4 @@ urlpatterns = [
     path('expense/<int:pk>/delete/', expense_delete, name='expense_delete'),
 ]
 from tracker.views import home
+path('expense/new/', views.expense_create, name='expense_create'),

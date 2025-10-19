@@ -1,30 +1,17 @@
-<h1>My Expenses</h1>
-<ul>
-  {% for expense in expenses %}
-    <li>{{ expense.date }} - {{ expense.category.name if expense.category else "No category" }}: {{ expense.amount }} - {{ expense.note }}</li>
-  {% empty %}
-    <li>No expenses yet.</li>
-  {% endfor %}
-</ul>
-{% extends 'tracker/base.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if form.instance.pk %}Edit Expense{% else %}Add New Expense{% endif %}</title>
+</head>
+<body>
+    <h1>{% if form.instance.pk %}Edit Expense{% else %}Add New Expense{% endif %}</h1>
 
-{% block content %}
-<h2>Add New Expense</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-</form>
-<a href="{% url 'expense_list' %}">Back to Expenses</a>
-{% endblock %}
-{% extends 'tracker/base.html' %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
 
-{% block content %}
-<h2>{{ form.instance.pk|yesno:"Edit Expense,Add New Expense" }}</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-</form>
-<a href="{% url 'expense_list' %}">Back to Expenses</a>
-{% endblock %}
+    <p><a href="{% url 'expense_list' %}">← Back to Expenses</a></p>
+</body>
+</html>
