@@ -19,6 +19,14 @@
             margin-right: 6px;
             padding: 4px;
         }
+        #monthly-income {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        #total-expense {
+            font-weight: bold;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -27,23 +35,26 @@
     <p>Logged in as {{ user.username }} | <a href="{% url 'logout' %}">Logout</a></p>
     <hr>
 
-    <h2>Your Expenses</h2>
+    <!-- Monthly Income -->
+    <div id="monthly-income">
+        Monthly Income for {{ current_month }} {{ current_year }}: 
+        <input type="number" id="income-input" value="{{ monthly_income }}" step="0.01">
+    </div>
+
+    <h2>Your Expenses for {{ current_month }} {{ current_year }}</h2>
 
     <!-- Inline Add Expense Form -->
     <form id="expense-form" class="inline-form" method="POST">
         {% csrf_token %}
-        <!-- Type new category or select existing -->
         <input type="text" name="category" placeholder="Category" list="category-list" required>
         <datalist id="category-list">
             {% for cat in categories %}
                 <option value="{{ cat.name }}">
             {% endfor %}
         </datalist>
-
         <input type="number" name="amount" placeholder="Amount" step="0.01" required>
         <input type="text" name="note" placeholder="Note">
         <input type="date" name="date" required>
-
         <button type="submit">Add</button>
     </form>
     <br>
@@ -80,6 +91,12 @@
             <tr><td colspan="5">No expenses yet.</td></tr>
             {% endfor %}
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"><strong>Total Expense</strong></td>
+                <td colspan="3" id="total-expense">{{ total_expense }}</td>
+            </tr>
+        </tfoot>
     </table>
 
     <!-- AJAX Script -->
@@ -97,7 +114,7 @@
         .then(response => response.json())
         .then(expense => {
             if(expense.errors){
-                alert('Error: ' + JSON.stringify(expense.errors));
+                alert('Error: ' + expense.errors);
                 return;
             }
             const table = document.getElementById('expenses-table');
@@ -114,6 +131,12 @@
                 </td>
             `;
             table.prepend(row);
+
+            // Update total expense dynamically
+            const totalCell = document.getElementById('total-expense');
+            const currentTotal = parseFloat(totalCell.textContent) || 0;
+            totalCell.textContent = (currentTotal + parseFloat(expense.amount)).toFixed(2);
+
             form.reset();
         })
         .catch(err => console.error(err));

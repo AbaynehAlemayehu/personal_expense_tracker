@@ -1,18 +1,34 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
+from django.db.models import Sum
 from .models import Expense, Category
-
 
 def home(request):
     return HttpResponse("Welcome to Personal Expense Tracker!")
 
-
 # -------------------- Expense List --------------------
 @login_required
 def expense_list(request):
-    expenses = Expense.objects.filter(user=request.user).order_by('-date')
+    from datetime import datetime
+    from .forms import ExpenseForm
+
+    # Current month/year
+    today = datetime.today()
+    current_month = today.month
+    current_year = today.year
+
+    # Filter expenses for current month
+    expenses = Expense.objects.filter(
+        user=request.user,
+        date__month=current_month,
+        date__year=current_year
+    ).order_by('-date')
+
     categories = Category.objects.all()
+
+    # Calculate total expenses for the month
+    total_expense = expenses.aggregate(total=Sum('amount'))['total'] or 0
 
     # Handle AJAX request for adding a new expense directly
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -44,9 +60,16 @@ def expense_list(request):
             'date': expense.date.strftime('%b. %d, %Y'),
         })
 
+    # Monthly income (can be extended to allow editing later)
+    monthly_income = 0  # default, can fetch from model if you create one
+
     return render(request, 'tracker/expense_list.html', {
         'expenses': expenses,
         'categories': categories,
+        'total_expense': total_expense,
+        'current_month': today.strftime('%B'),
+        'current_year': today.year,
+        'monthly_income': monthly_income,
     })
 
 
@@ -65,7 +88,6 @@ def expense_create(request):
         form = ExpenseForm()
     return render(request, 'tracker/expense_form.html', {'form': form})
 
-
 # -------------------- Update Expense --------------------
 @login_required
 def expense_update(request, pk):
@@ -79,7 +101,6 @@ def expense_update(request, pk):
     else:
         form = ExpenseForm(instance=expense)
     return render(request, 'tracker/expense_form.html', {'form': form})
-
 
 # -------------------- Delete Expense --------------------
 @login_required
