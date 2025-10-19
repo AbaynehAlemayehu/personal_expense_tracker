@@ -2,6 +2,24 @@
 <html>
 <head>
     <title>Personal Expense Tracker</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 6px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form.inline-form input {
+            margin-right: 6px;
+            padding: 4px;
+        }
+    </style>
 </head>
 <body>
     <h1>Personal Expense Tracker</h1>
@@ -11,40 +29,95 @@
 
     <h2>Your Expenses</h2>
 
-    <a href="{% url 'expense_create' %}">➕ Add New Expense</a><br><br>
+    <!-- Inline Add Expense Form -->
+    <form id="expense-form" class="inline-form" method="POST">
+        {% csrf_token %}
+        <!-- Type new category or select existing -->
+        <input type="text" name="category" placeholder="Category" list="category-list" required>
+        <datalist id="category-list">
+            {% for cat in categories %}
+                <option value="{{ cat.name }}">
+            {% endfor %}
+        </datalist>
 
-    <table border="1" cellspacing="0" cellpadding="6">
-        <tr>
-            <th>Date</th>
-            <th>Category</th>
-            <th>Amount</th>
-            <th>Note</th>
-            <th>Actions</th>
-        </tr>
+        <input type="number" name="amount" placeholder="Amount" step="0.01" required>
+        <input type="text" name="note" placeholder="Note">
+        <input type="date" name="date" required>
 
-        {% for expense in expenses %}
-        <tr>
-            <td>{{ expense.date|date:"M. d, Y" }}</td>
+        <button type="submit">Add</button>
+    </form>
+    <br>
 
-            <!-- FIXED category display -->
-            <td>
-                {% if expense.category %}
-                    {{ expense.category.name }}
-                {% else %}
-                    No category
-                {% endif %}
-            </td>
-
-            <td>{{ expense.amount }}</td>
-            <td>{{ expense.note }}</td>
-            <td>
-                <a href="{% url 'expense_update' expense.pk %}">✏️ Edit</a> |
-                <a href="{% url 'expense_delete' expense.pk %}">🗑️ Delete</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="5">No expenses yet.</td></tr>
-        {% endfor %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Note</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="expenses-table">
+            {% for expense in expenses %}
+            <tr id="expense-{{ expense.id }}">
+                <td>{{ expense.date|date:"M. d, Y" }}</td>
+                <td>
+                    {% if expense.category %}
+                        {{ expense.category.name }}
+                    {% else %}
+                        No category
+                    {% endif %}
+                </td>
+                <td>{{ expense.amount }}</td>
+                <td>{{ expense.note }}</td>
+                <td>
+                    <a href="{% url 'expense_update' expense.pk %}">✏️ Edit</a> |
+                    <a href="{% url 'expense_delete' expense.pk %}">🗑️ Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">No expenses yet.</td></tr>
+            {% endfor %}
+        </tbody>
     </table>
+
+    <!-- AJAX Script -->
+    <script>
+    document.getElementById('expense-form').addEventListener('submit', function(e){
+        e.preventDefault();
+        const form = e.target;
+        const data = new FormData(form);
+
+        fetch("{% url 'expense_list' %}", {
+            method: 'POST',
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            body: data
+        })
+        .then(response => response.json())
+        .then(expense => {
+            if(expense.errors){
+                alert('Error: ' + JSON.stringify(expense.errors));
+                return;
+            }
+            const table = document.getElementById('expenses-table');
+            const row = document.createElement('tr');
+            row.id = `expense-${expense.id}`;
+            row.innerHTML = `
+                <td>${expense.date}</td>
+                <td>${expense.category}</td>
+                <td>${expense.amount}</td>
+                <td>${expense.note}</td>
+                <td>
+                    <a href="/expense/${expense.id}/edit/">✏️ Edit</a> |
+                    <a href="/expense/${expense.id}/delete/">🗑️ Delete</a>
+                </td>
+            `;
+            table.prepend(row);
+            form.reset();
+        })
+        .catch(err => console.error(err));
+    });
+    </script>
 </body>
 </html>
