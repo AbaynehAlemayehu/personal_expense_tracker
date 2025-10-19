@@ -27,12 +27,28 @@
             font-weight: bold;
             margin-top: 10px;
         }
+        button.logout-btn {
+            background: none;
+            border: none;
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0;
+            font: inherit;
+        }
     </style>
 </head>
 <body>
     <h1>Personal Expense Tracker</h1>
 
-    <p>Logged in as {{ user.username }} | <a href="{% url 'logout' %}">Logout</a></p>
+    <!-- Logout Form -->
+    <p>
+        Logged in as {{ user.username }} | 
+        <form action="{% url 'logout' %}" method="POST" class="logout-form" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </p>
     <hr>
 
     <!-- Monthly Income -->
