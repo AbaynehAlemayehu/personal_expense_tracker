@@ -18,6 +18,11 @@ INSTALLED_APPS = [
     'rest_framework',   # optional for API
     'tracker',          # our app
 ]
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    ...
+]
 
 # ------------------ Middleware ------------------
 MIDDLEWARE = [
@@ -82,3 +87,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'                  # login page
 LOGIN_REDIRECT_URL = '/'               # redirect after login
 LOGOUT_REDIRECT_URL = '/login/'        # redirect after logout
+ALLOWED_HOSTS = ['*']
+import os
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'
